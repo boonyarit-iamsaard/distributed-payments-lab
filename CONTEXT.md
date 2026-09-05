@@ -1,18 +1,17 @@
 # Distributed Payments Lab
 
-This file is the shared source for repository instructions and domain context.
-`AGENTS.md` and `CLAUDE.md` are relative symlinks to this file; edit `CONTEXT.md` to update either entry point.
+This lab explores payment correctness under retries, concurrency, partial failure, and recovery.
 
-## Agent skills
+## Language
 
-### Issue tracker
+**Payment**:
+A payment operation whose lifecycle the lab tracks from creation through subsequent financial outcomes. Creating a payment record does not by itself mean funds have moved or settlement has occurred.
 
-Track issues and specs as local markdown under `.scratch/<feature>/`. Before creating, fetching, or updating tickets, read `docs/agents/issue-tracker.md`.
+**Ledger**:
+The financial record that evolves toward immutable, balanced journal entries and account balances derived from those entries.
 
-### Triage labels
+**Reconciliation**:
+Comparison of internal payment records with external bank/acquirer records to identify missing transactions, duplicates, amount mismatches, and unknown external transactions.
 
-Use the five default triage labels. Before triaging issues or changing their triage status, read `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Use a single-context layout: this `CONTEXT.md` and root `docs/adr/`. Before exploring the codebase or proposing domain changes, read `docs/agents/domain.md`.
+**Webhook delivery**:
+Delivery of a payment notification to a merchant endpoint, potentially through multiple attempts for the same event.

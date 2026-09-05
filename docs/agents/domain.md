@@ -4,15 +4,16 @@ This repo uses a single-context layout, with `CONTEXT.md` at the repo root and a
 
 ## Before exploring, read these
 
-- Read root `CONTEXT.md` for repository instructions and resolved domain terminology. If already loaded through `AGENTS.md` or `CLAUDE.md`, treat it as read.
+- Read root `CONTEXT.md` for domain context and resolved terminology. Repository instructions live in `AGENTS.md`.
 - Read ADRs in `docs/adr/` that touch the area you are about to work in.
 
 If domain documentation or the ADR directory is absent, proceed silently. The `/domain-modeling` skill creates domain material lazily when terms or decisions are resolved.
 
 ## File structure
 
-- `CONTEXT.md`: shared repository instructions and domain context.
-- `AGENTS.md` and `CLAUDE.md`: relative symlinks to `CONTEXT.md`.
+- `CONTEXT.md`: separate domain context document.
+- `AGENTS.md`: repository instructions and engineering skill configuration.
+- `CLAUDE.md`: relative symlink to `AGENTS.md`.
 - `docs/adr/`: architecture decision records, created as decisions are recorded.
 
 ## Use the glossary's vocabulary
