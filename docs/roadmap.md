@@ -74,8 +74,8 @@ tests/                 cross-module failure tests (the named scenarios below)
 
 Boundary rules:
 
-- `internal/` prevents import from outside the module. Cross-module calls go through the other module's exported service or through events, never through its `postgres.go` or its unexported types.
-- Dependency direction inside a module: `http.go` to `service.go` to `payment.go`; `postgres.go` implements `ports.go`. These files share a package, so the compiler will not enforce the direction. That is a conscious trade: **module boundaries are enforced by the compiler; layer boundaries by discipline and a linter.**
+- `internal/` restricts imports to the tree rooted at its parent. Package visibility hides unexported identifiers, but sibling packages can access any exported symbol, including one declared in `postgres.go`. Cross-module business calls should use the other module's exported service or events; keep repository details unexported where possible and review any exports needed for wiring.
+- Dependency direction inside a module: `http.go` to `service.go` to `payment.go`; `postgres.go` implements `ports.go`. These files share a package, so the compiler will not enforce the direction. Package visibility is enforced by the compiler; service-only access and file-level layer direction require discipline and review. Import-boundary linting can restrict dependencies between packages, but cannot enforce these file-level layers.
 - Avoid horizontal `pkg/`, `models/`, `handlers/`, and `repositories/` packages.
 
 ## Weekend roadmap
@@ -139,7 +139,8 @@ Build a fake acquirer as an `httptest.Server` configurable to return 200, 500, 4
 
 Replace a simplistic flag such as `paid bool` with `CREATED → AUTHORIZED → CAPTURED → SETTLED`, plus `FAILED`, `CANCELLED`, and `REFUNDED`.
 
-- Define the transition table once, as data. Enforce it twice: in the domain type, and in the database through `UPDATE ... WHERE status = $expected`, so a stale writer affects zero rows and is told so.
+- Define the transition table once, as data, and validate transitions in the domain type. Persist a validated transition through `UPDATE ... WHERE status = $expected`, so a stale writer affects zero rows and is told so. The expected-state predicate protects against concurrent changes; it does not check whether the old/new state pair is legal.
+- Open question for the lesson: must the database also reject writes that bypass domain validation? If so, choose a mechanism that validates the old/new state pair and keeps the legal-transition rules consistent with the domain table.
 - Invariant: no row ever holds an illegal state or arrives at a state through an illegal transition.
 - Go: an unexported `type status string` with exported constants; a `map[status][]status` transition table; a `Transition(to status) error` method. This is the weekend to evaluate `sqlc`.
 - Test: `TestIllegalTransitionRejected`.
@@ -247,7 +248,7 @@ Introduce toxiproxy, OpenTelemetry, Prometheus, and any further AWS services whe
 
 ## Calendar fit with the AWS certification path
 
-The certification path is Cloud Practitioner (CLF-C02) first, then Developer Associate (DVA-C02), inside the same three-to-four-month window. Twelve weekends is roughly three months, so the lab and the two exams run concurrently rather than in sequence.
+The certification path is Cloud Practitioner (CLF-C02) first, then Developer Associate (DVA-C02), inside the same three-to-four-month window. The lab starts alongside exam preparation. Its twelve weekends are learning units that may span more than twelve calendar weeks; the later units continue after DVA and may extend beyond the exam window.
 
 **The lab helps with DVA and barely helps with CLF, and that is convenient rather than a problem.** CLF is broad and shallow: billing models, the shared responsibility model, service-identification questions, support plans. Almost none of it is reachable by building one payment system well. DVA is the opposite; Weekends 4, 5, 7, and 12 carry heavy, direct overlap. So CLF preparation is reading and practice questions that compete with the lab only for calendar time, not for attention on the same material.
 
@@ -255,7 +256,7 @@ That suggests putting CLF early, while the lab is in its least AWS-dependent str
 
 - **Weekends 1 to 3** touch no AWS at all. They are Go, PostgreSQL, transactions, and the outbox pattern. Run CLF preparation alongside them and sit CLF at the end of this stretch, roughly four to six weeks in. If CLF preparation runs long, these are also the weekends that tolerate a skipped week best, because nothing downstream depends on infrastructure they introduce.
 - **Weekends 4 to 7** are the DVA core: SQS semantics, retry and DLQ behavior, SNS delivery policies. Run these after CLF is done, with DVA as the target at the end of the window. Sitting DVA with Weekends 4, 5, and 7 fresh is worth more than sitting it with all twelve weekends half-remembered.
-- **Weekends 8 to 12** come after DVA. Weekend 12 is the one exception worth pulling forward if time allows, since X-Ray and CloudWatch appear on the exam; but its value depends on there being something built to instrument, so pulling it earlier than Weekend 7 costs more than it gains.
+- **Weekends 8 to 12** come after DVA, extending beyond the three-to-four-month exam window when DVA is taken at its end. Weekend 12 is the one exception worth pulling forward if time allows, since X-Ray and CloudWatch appear on the exam; but its value depends on there being something built to instrument, so pulling it earlier than Weekend 7 costs more than it gains.
 
 If preparation for either exam needs more room, Weekends 8 and 9 are the safest to defer. They are domain-heavy and exam-light: reconciliation and double-entry accounting are the most valuable weekends for the fintech career goal and the least valuable for either exam.
 
