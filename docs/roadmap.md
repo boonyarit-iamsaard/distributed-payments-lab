@@ -14,7 +14,7 @@ Secondary goals, in priority order:
 
 1. Payment domain and reliability mechanisms (primary).
 2. Idiomatic Go under real constraints, not toy-service Go.
-3. AWS Developer Associate (DVA) overlap. Each weekend names the exam topics it exercises.
+3. AWS certification overlap. The path is Cloud Practitioner (CLF) first, then Developer Associate (DVA). Each weekend names the DVA topics it exercises; CLF overlap is thin by design and is covered in the calendar section.
 
 This document preserves the plan. The weekends describe intended work, not completed features or demonstrated learning. Concrete contracts and unresolved semantics should be worked through in the relevant lesson.
 
@@ -80,7 +80,7 @@ Boundary rules:
 
 ## Weekend roadmap
 
-Each weekend lists the experiment, the invariant or correctness target, what Go forces the implementer to confront, and the DVA topics touched.
+Each weekend lists the experiment, the invariant or correctness target, what Go forces the implementer to confront, and the DVA topics touched. The DVA line names topics at Developer Associate depth; where a weekend also gives usable Cloud Practitioner intuition, the calendar section says so rather than repeating it here.
 
 ### 1 — Idempotent Payment API
 
@@ -245,9 +245,21 @@ Introduce a second Go module or separate binaries only for an actual constraint:
 
 Introduce toxiproxy, OpenTelemetry, Prometheus, and any further AWS services when an exercise needs them. Avoid Kafka, Redis, Kubernetes, Terraform, EKS, multiple databases, and many services at the outset. The learning targets are transactions, concurrency, failure boundaries, message delivery, financial invariants, and recovery.
 
-## Calendar fit with the DVA exam
+## Calendar fit with the AWS certification path
 
-Twelve weekends is roughly three months. Weekends 4, 5, 7, and 12 carry the heaviest exam overlap. A defensible split against an exam three to four months out: Weekends 1 through 7 before the exam, so messaging and retry semantics are fresh, and 8 through 12 after. If exam preparation needs more room, Weekends 8 and 9 are the safest to defer; they are domain-heavy and exam-light.
+The certification path is Cloud Practitioner (CLF-C02) first, then Developer Associate (DVA-C02), inside the same three-to-four-month window. Twelve weekends is roughly three months, so the lab and the two exams run concurrently rather than in sequence.
+
+**The lab helps with DVA and barely helps with CLF, and that is convenient rather than a problem.** CLF is broad and shallow: billing models, the shared responsibility model, service-identification questions, support plans. Almost none of it is reachable by building one payment system well. DVA is the opposite; Weekends 4, 5, 7, and 12 carry heavy, direct overlap. So CLF preparation is reading and practice questions that compete with the lab only for calendar time, not for attention on the same material.
+
+That suggests putting CLF early, while the lab is in its least AWS-dependent stretch:
+
+- **Weekends 1 to 3** touch no AWS at all. They are Go, PostgreSQL, transactions, and the outbox pattern. Run CLF preparation alongside them and sit CLF at the end of this stretch, roughly four to six weeks in. If CLF preparation runs long, these are also the weekends that tolerate a skipped week best, because nothing downstream depends on infrastructure they introduce.
+- **Weekends 4 to 7** are the DVA core: SQS semantics, retry and DLQ behavior, SNS delivery policies. Run these after CLF is done, with DVA as the target at the end of the window. Sitting DVA with Weekends 4, 5, and 7 fresh is worth more than sitting it with all twelve weekends half-remembered.
+- **Weekends 8 to 12** come after DVA. Weekend 12 is the one exception worth pulling forward if time allows, since X-Ray and CloudWatch appear on the exam; but its value depends on there being something built to instrument, so pulling it earlier than Weekend 7 costs more than it gains.
+
+If preparation for either exam needs more room, Weekends 8 and 9 are the safest to defer. They are domain-heavy and exam-light: reconciliation and double-entry accounting are the most valuable weekends for the fintech career goal and the least valuable for either exam.
+
+**CLF touchpoints in the lab**, such as they are: standing up LocalStack in Weekend 4 gives concrete meaning to SQS, and to the idea of a managed queue as a service you do not operate. Weekend 12 makes CloudWatch and X-Ray real rather than names on a slide. Neither is worth resequencing for. Treat CLF as a separate study track that happens to share a calendar.
 
 ## Decisions to make before Weekend 1
 
